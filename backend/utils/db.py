@@ -24,15 +24,15 @@ class DatabaseManager:
         Prefer the service role key when available to avoid RLS permission errors on the backend.
         """
         url = os.environ.get("SUPABASE_URL")
-        # Prefer service role key; fall back to generic key only if explicitly needed
+        # Server-side key: prefer service role key, fallback to legacy SUPABASE_KEY if present.
+        # Do NOT use anon/publishable keys on the backend for security.
         key = (
             os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
             or os.environ.get("SUPABASE_KEY")
-            or os.environ.get("SUPABASE_ANON_KEY")
         )
         
         if not url or not key:
-            raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_KEY) must be set")
+            raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_KEY) must be set on the backend")
         
         try:
             self._client = create_client(url, key)
